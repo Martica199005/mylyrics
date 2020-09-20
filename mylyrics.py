@@ -8,8 +8,7 @@ from bs4 import BeautifulSoup as BS
 
 separator=" "
 providers=['azlyrics','elyrics']
-path=os.getcwd() # da mettere ovunque come path non come stringa
-# add '' in string to artist
+path=os.getcwd() 
 list=['mylyrics.py','-p', 'elyrics', '-a', "red hot chili peppers", '-l', "can't stop"]
 numbers=range(0,len(list))
 only_odd = [num for num in numbers if num % 2 == 1] 
