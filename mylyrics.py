@@ -2,16 +2,21 @@ import sys
 import os
 import os.path
 from os import path
+from pathlib import Path
 import requests
 from bs4 import BeautifulSoup as BS
 
 separator=" "
 providers=['azlyrics','elyrics']
-path=path=os.getcwd() # da mettere ovunque come path non come stringa
+path=os.getcwd() # da mettere ovunque come path non come stringa
 # add '' in string to artist
 list=['mylyrics.py','-p', 'elyrics', '-a', "red hot chili peppers", '-l', "can't stop"]
 numbers=range(0,len(list))
 only_odd = [num for num in numbers if num % 2 == 1] 
+
+def converterStrToPath(str_path):
+    return Path(str_path)
+
 
 def specialChar(ch):
     '''Check if character is a Special Character'''
@@ -55,12 +60,16 @@ def URLpage(provider, artist, lyrics):
 
 def searchlyric(url,provider):
     ''' Searches the lyrics'''
+    print(url)
+    print(provider)
     page= requests.get(url)
     soup= BS(page.content , 'html.parser')
     try:
-        if provider==provider[1]:
+        if provider==providers[1]:
+            print('provider elyrics')
             lyrics=soup.find(id='inlyr').text
         else:
+            print('provider azlyrics')
             former_div=(soup.find(name="div", class_='ringtone')) #azlyrics search div with  id='ringtone'
             lyrics_div=former_div.find_next_sibling("div")
             lyrics=lyrics_div.text
@@ -90,7 +99,7 @@ def errorString():
 
 def writetxt(filename,text,provider,path): 
   original_stdout = sys.stdout 
-  with open(path+"/"+filename, 'w') as f:
+  with open(str(path)+"/"+filename, 'w') as f:
     sys.stdout =f 
     print(text)
     print('\n')
@@ -107,42 +116,35 @@ def createFolder(path):
     else:
         print ("Successfully created the directory %s " % path)
 
-def checkFileExists(path,filename):
-    bool=path.exists(filename)
+def checkFileExists(filename):
+    bool=filename.exists()
     return bool
 
 def checkFolderExists(pathdir):
-    bool=pathdir.exists(pathdir)
+    bool=pathdir.exists()
     return bool
 
 def readFile(path):
-    file=open(path,'r')
-    for line in file:
-        line.read()
+    file=open(str(path),'r')
+    print(file.read())
     file.close()
 
 
         
 
-def saveLyrics(bool,lyrics,artist,text,provider):
+def saveLyrics(bool,path_folder,filename,text,provider):
     '''Through the use of the -s flag (optional)
     the user decides to save the lyrics of the song in a folder dedicated to the artist,
     subsequent uses of the script will read the lyrics from the disc instead of
     retrieve from providers if it has been saved'''
     print('flag -s: '+ str(bool))
     if bool:
-        filename=lyrics+".txt"
-        #path=os.getcwd() to get the current directory
-        #path="/Users/marta/Desktop/"
-        new_path=path+"/"+artist
-        bool=checkFolderExists(new_path)
+        bool=checkFolderExists(path_folder)
         if not bool:
-            createFolder(new_path)
-        
-        writetxt(filename,text,provider,new_path)
-    else:
-        print(text)
-        print("Provided by "+provider)
+            createFolder(path_folder)
+        #if folder already exists but file doesn't exist
+
+        writetxt(filename,text,provider,path_folder)
 
 
 def mylyrics(list):
@@ -156,13 +158,16 @@ def mylyrics(list):
                 singer=modifyword(artist,provider) #change string artist 
                 title=modifyword(lyrics,provider) #change string lyrics
                 #check if the txt file already exists
-                bool=checkFileExists(path+"/"+singer,title+".txt")
+                filename=title+".txt"
+                path_folder=converterStrToPath(path+"/"+singer)
+                path_file=converterStrToPath(path+"/"+singer+"/"+filename)
+                bool=checkFileExists(path_file)
                 if bool:
-                    readFile(path+"/"+singer+"/"+title+".txt")
+                    readFile(path_file)
                 else:
                     page=URLpage(provider, singer, title)
                     text=searchlyric(page,provider)
-                    saveLyrics(checkList(list)[1],lyrics,artist,text,provider)
+                    saveLyrics(checkList(list)[1],path_folder,filename,text,provider)
             else:
                 print("Wrong provider")
 
@@ -171,8 +176,6 @@ def mylyrics(list):
     else:
         errorString()
  
-
-
 
 
 mylyrics(list)
