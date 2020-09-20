@@ -96,13 +96,13 @@ def errorString():
     print("python "+ separator.join(list))
 
 
-def writetxt(filename,text,provider,path): 
+def writetxt(filename,text,path): 
   original_stdout = sys.stdout 
   with open(str(path)+"/"+filename, 'w') as f:
     sys.stdout =f 
     print(text)
     print('\n')
-    print("Provided by "+provider)
+    
     
     sys.stdout = original_stdout 
     # Reset the standard output to its original value
@@ -131,7 +131,7 @@ def readFile(path):
 
         
 
-def saveLyrics(bool,path_folder,filename,text,provider):
+def saveLyrics(bool,path_folder,filename,text):
     '''Through the use of the -s flag (optional)
     the user decides to save the lyrics of the song in a folder dedicated to the artist,
     subsequent uses of the script will read the lyrics from the disc instead of
@@ -143,7 +143,7 @@ def saveLyrics(bool,path_folder,filename,text,provider):
             createFolder(path_folder)
         #if folder already exists but file doesn't exist
 
-        writetxt(filename,text,provider,path_folder)
+        writetxt(filename,text,path_folder)
 
 
 def mylyrics(list):
@@ -157,16 +157,18 @@ def mylyrics(list):
                 singer=modifyword(artist,provider) #change string artist 
                 title=modifyword(lyrics,provider) #change string lyrics
                 #check if the txt file already exists
-                filename=title+".txt"
-                path_folder=converterStrToPath(path+"/"+singer)
-                path_file=converterStrToPath(path+"/"+singer+"/"+filename)
+                filename=modifyword(lyrics,providers[0])+".txt"
+                path_folder=converterStrToPath(path+"/"+modifyword(artist,providers[0]))
+                path_file=converterStrToPath(path+"/"+modifyword(artist,providers[0])+"/"+filename)
                 bool=checkFileExists(path_file)
                 if bool:
                     readFile(path_file)
                 else:
                     page=URLpage(provider, singer, title)
                     text=searchlyric(page,provider)
-                    saveLyrics(checkList(list)[1],path_folder,filename,text,provider)
+                    saveLyrics(checkList(list)[1],path_folder,filename,text)
+                
+                print("Provided by "+provider)
             else:
                 print("Wrong provider")
 
