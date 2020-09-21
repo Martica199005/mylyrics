@@ -79,7 +79,7 @@ def searchlyric(url,provider):
     
 
 def checkList(list):
-    '''Checks if the inserted array length is correct (bool[0])
+    '''Checks if the inserted list length is correct (bool[0])
     and if there is the -s command (bool[1])
     '''
     if len(sys.argv)==len(list):
